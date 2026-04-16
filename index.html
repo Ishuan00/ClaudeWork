@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude & Copilot 完整指南</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;--surface:#fff;--border:#e2e8f0;--border-light:#f1f5f9;
+  --text:#1e293b;--text-2:#475569;--text-3:#94a3b8;
+  --blue-bg:#dbeafe;--blue-text:#1e40af;--blue-border:#93c5fd;
+  --teal-bg:#d1fae5;--teal-text:#065f46;
+  --purple-bg:#ede9fe;--purple-text:#4c1d95;
+  --amber-bg:#fef3c7;--amber-text:#92400e;
+  --green-bg:#dcfce7;--green-text:#166534;
+  --red-bg:#fee2e2;--red-text:#991b1b;
+  --info-bg:#eff6ff;--info-border:#60a5fa;--info-text:#1e3a8a;
+  --warn-bg:#fffbeb;--warn-border:#fbbf24;--warn-text:#92400e;
+  --success:#16a34a;--muted:#cbd5e1;--warning:#d97706;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:var(--bg);font-size:14px;line-height:1.6}
+.layout{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.sidebar-header{padding:18px 16px 12px;border-bottom:1px solid var(--border-light);flex-shrink:0}
+.sidebar-nav{flex:1;overflow-y:auto;overflow-x:hidden}
+.sidebar-logo{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.sidebar-logo span{color:var(--blue-text)}
+.sidebar-desc{font-size:11px;color:var(--text-3);margin-top:2px}
+.nav-group{padding:10px 0}
+.nav-group-label{font-size:10px;font-weight:600;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;padding:4px 16px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 16px;font-size:12.5px;cursor:pointer;color:var(--text-2);border-left:2px solid transparent;transition:all .1s;user-select:none}
+.nav-item:hover{background:var(--bg);color:var(--text)}
+.nav-item.active{color:var(--blue-text);border-left-color:#378add;background:var(--blue-bg);font-weight:500}
+.nav-num{font-size:10px;color:var(--muted);min-width:16px;font-variant-numeric:tabular-nums}
+.nav-text{flex:1;line-height:1.3}
+
+/* Content */
+.content{flex:1;padding:32px 36px;min-width:0;max-width:860px}
+.page{display:none}.page.active{display:block}
+.page-eyebrow{font-size:11px;font-weight:600;color:var(--blue-text);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.page-title{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:6px;letter-spacing:-.02em}
+.page-sub{font-size:13px;color:var(--text-2);margin-bottom:24px;line-height:1.6;max-width:600px}
+.divider{height:1px;background:var(--border-light);margin:18px 0}
+
+/* Badges */
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-weight:600;vertical-align:middle;white-space:nowrap}
+.b-blue{background:var(--blue-bg);color:var(--blue-text)}
+.b-teal{background:var(--teal-bg);color:var(--teal-text)}
+.b-purple{background:var(--purple-bg);color:var(--purple-text)}
+.b-amber{background:var(--amber-bg);color:var(--amber-text)}
+.b-gray{background:var(--border-light);color:var(--text-2)}
+.b-green{background:var(--green-bg);color:var(--green-text)}
+.b-red{background:var(--red-bg);color:var(--red-text)}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px}
+th{padding:8px 12px;font-weight:600;font-size:11px;color:var(--text-3);background:var(--bg);border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+td{padding:8px 12px;border-bottom:1px solid var(--border-light);vertical-align:top;line-height:1.6}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.check{color:var(--success);font-weight:600}
+.cross{color:var(--muted)}
+.half{color:var(--warning)}
+td strong{font-weight:500;color:var(--text)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px}
+.card-head{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:8px;color:#0f172a}
+.card p{font-size:13px;color:var(--text-2);line-height:1.7}
+.card-accent-blue{border-left:3px solid var(--info-border);border-radius:0 10px 10px 0}
+.card-accent-purple{border-left:3px solid #a78bfa;border-radius:0 10px 10px 0}
+.card-accent-teal{border-left:3px solid #34d399;border-radius:0 10px 10px 0}
+.card-accent-amber{border-left:3px solid #fbbf24;border-radius:0 10px 10px 0}
+
+/* Grid */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+
+/* Info / Warn boxes */
+.info-box{border-left:3px solid var(--info-border);background:var(--info-bg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px;line-height:1.6;color:var(--info-text)}
+.warn-box{border-left:3px solid var(--warn-border);background:var(--warn-bg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px;line-height:1.6;color:var(--warn-text)}
+.success-box{border-left:3px solid #34d399;background:#f0fdf4;padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:13px;line-height:1.6;color:#065f46}
+
+/* Feature rows */
+.feat-row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px}
+.feat-row:last-child{border-bottom:none}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.dot-blue{background:#60a5fa}.dot-purple{background:#a78bfa}
+.dot-teal{background:#34d399}.dot-amber{background:#fbbf24}
+.dot-gray{background:#94a3b8}
+.feat-text{flex:1;line-height:1.6;color:var(--text)}
+.feat-text small{color:var(--text-3);font-size:11.5px}
+
+/* Avatar */
+.avatar{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.av-blue{background:var(--blue-bg);color:var(--blue-text)}
+.av-teal{background:var(--teal-bg);color:var(--teal-text)}
+.av-purple{background:var(--purple-bg);color:var(--purple-text)}
+.av-amber{background:var(--amber-bg);color:var(--amber-text)}
+
+/* Steps */
+.step-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-light);font-size:13px}
+.step-row:last-child{border-bottom:none}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-3);flex-shrink:0;margin-top:1px}
+
+/* Flow */
+.flow-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.flow-box{background:var(--bg);border:1px solid var(--border);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;color:var(--text-2)}
+.flow-box.active{background:var(--blue-bg);border-color:var(--blue-border);color:var(--blue-text)}
+.flow-arrow{color:var(--text-3);font-size:14px}
+
+/* Cowork cards */
+.cowork-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.cowork-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.cowork-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-light)}
+.note-pill{display:inline-block;background:var(--bg);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text-2);margin-top:8px;line-height:1.5;font-style:italic;border:1px solid var(--border-light)}
+.next-box{background:var(--bg);border-radius:10px;padding:16px 18px;border:1px solid var(--border)}
+
+/* Output type comparison (page 11) */
+.output-col{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.output-col-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.output-col-body{padding:14px 16px}
+.output-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.output-row{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border-light);font-size:12.5px;gap:8px}
+.output-row:last-child{border-bottom:none}
+.output-label{color:var(--text-3);font-size:11px;min-width:80px;padding-top:1px}
+.output-val{color:var(--text);text-align:right;flex:1;line-height:1.5}
+.pill-row{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.pill{display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 7px;font-size:11px;color:var(--text-2)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">Claude <span>&</span> Copilot</div>
+    <div class="sidebar-desc">完整介紹指南 · 2026</div>
+  </div>
+  <div class="sidebar-nav">
+  <div class="nav-group">
+    <div class="nav-group-label">Claude 基礎</div>
+    <div class="nav-item active" onclick="go(0)"><span class="nav-num">01</span><span class="nav-text">方案比較</span></div>
+    <div class="nav-item" onclick="go(1)"><span class="nav-num">02</span><span class="nav-text">三大產品</span></div>
+    <div class="nav-item" onclick="go(2)"><span class="nav-num">03</span><span class="nav-text">桌機 vs 網頁</span></div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">功能模組</div>
+    <div class="nav-item" onclick="go(3)"><span class="nav-num">04</span><span class="nav-text">Skill</span></div>
+    <div class="nav-item" onclick="go(4)"><span class="nav-num">05</span><span class="nav-text">Chat / Projects / Artifacts</span></div>
+    <div class="nav-item" onclick="go(5)"><span class="nav-num">06</span><span class="nav-text">產出類型說明</span></div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Copilot 生態</div>
+    <div class="nav-item" onclick="go(6)"><span class="nav-num">07</span><span class="nav-text">Copilot 產品家族</span></div>
+    <div class="nav-item" onclick="go(7)"><span class="nav-num">08</span><span class="nav-text">M365 Copilot 功能</span></div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">概念說明與比較</div>
+    <div class="nav-item" onclick="go(8)"><span class="nav-num">09</span><span class="nav-text">檔案連線</span></div>
+    <div class="nav-item" onclick="go(9)"><span class="nav-num">10</span><span class="nav-text">MCP &amp; Connector</span></div>
+    <div class="nav-item" onclick="go(10)"><span class="nav-num">11</span><span class="nav-text">Cowork 比較</span></div>
+    <div class="nav-item" onclick="go(11)"><span class="nav-num">12</span><span class="nav-text">工具選擇指南</span></div>
+  </div>
+  </div><!-- /sidebar-nav -->
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+<!-- PAGE 0: Plans -->
+<div class="page active" id="pg0">
+  <div class="page-eyebrow">Claude 基礎 · 01</div>
+  <div class="page-title">方案比較</div>
+  <div class="page-sub">Free 到 Enterprise，依資安需求與協作規模選擇合適方案。</div>
+  <table>
+    <thead><tr>
+      <th style="width:22%">功能</th>
+      <th><span class="badge b-gray">Free</span></th>
+      <th><span class="badge b-blue">Pro $20/月</span></th>
+      <th><span class="badge b-teal">Team $25/人/月</span></th>
+      <th><span class="badge b-amber">Enterprise 議價</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong>模型存取</strong></td><td>基礎模型</td><td>最新模型</td><td>最新模型</td><td>所有模型</td></tr>
+      <tr><td><strong>訊息用量</strong></td><td>有限</td><td>較高限制</td><td>較高限制</td><td>可客製</td></tr>
+      <tr><td><strong>Projects</strong></td><td class="cross">✕</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>Artifacts</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>MCP Connector</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>協作共享</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓ 團隊</td><td class="check">✓ 組織</td></tr>
+      <tr><td><strong>SSO / SAML</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓</td></tr>
+      <tr><td><strong>資料不用於訓練</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>稽核日誌</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="half">△ 部分</td><td class="check">✓ 完整</td></tr>
+      <tr><td><strong>管理員控制台</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="half">△ 基本</td><td class="check">✓ 完整</td></tr>
+      <tr><td><strong>API 存取</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="cross">✕</td><td class="half">△ 另計費</td></tr>
+    </tbody>
+  </table>
+  <div class="warn-box">⚠ Free 版資料預設可能用於模型訓練。Team 以上不用於訓練，Enterprise 另有 DPA 合規保障。</div>
+</div>
+
+<!-- PAGE 1: Three Products -->
+<div class="page" id="pg1">
+  <div class="page-eyebrow">Claude 基礎 · 02</div>
+  <div class="page-title">Anthropic 三大產品</div>
+  <div class="page-sub">底層模型相同，但入口、使用方式、能力範圍完全不同。</div>
+
+  <div class="card card-accent-blue">
+    <div class="card-head"><div class="avatar av-blue">Ch</div>Claude（claude.ai）<span class="badge b-blue" style="margin-left:auto">網頁 / App / 手機</span></div>
+    <p>通用 AI 對話助理。可問答、分析文件、寫作、生成 Artifacts、連接 MCP 工具。適合個人工作、學習、資料分析。</p>
+    <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+      <strong style="color:var(--text)">製作網站 / 工具：</strong>適合單一 HTML 檔案的網頁、快速原型、互動工具。Artifact 可即時在對話中渲染預覽，直接說「改這裡」就能修改，體驗流暢。複雜度高（多檔案、後端、資料庫）就不夠用了。
+    </div>
+  </div>
+  <div class="card card-accent-teal">
+    <div class="card-head"><div class="avatar av-teal">CC</div>Claude Code<span class="badge b-teal" style="margin-left:auto">CLI 終端機 + 桌機 App 整合</span></div>
+    <p>原本需要在終端機（Terminal）以 npm 安裝執行。直接讀取修改本機程式碼、執行 git、跑測試。深度整合開發工作流程，理解整個 Repo 脈絡。適合軟體開發者與工程師。</p>
+    <div style="margin-top:8px;background:#d1fae5;border-radius:6px;padding:8px 10px;font-size:12px;color:#065f46;line-height:1.6;border:1px solid #6ee7b7">
+      <strong>🆕 最新版桌機 App 已整合：</strong>Claude Desktop App 現在有 Chat / Code / Cowork 三個 Tab。Code tab 讓你透過 GUI 介面使用 Claude Code 全部功能，不需要開終端機。Code tab 目前仍在逐步推出，部分使用者可能尚未看到。
+    </div>
+    <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+      <strong style="color:var(--text)">製作網站 / 工具：</strong>真正的開發首選。理解整個 Codebase、直接執行程式、安裝套件、跑測試除錯、操作 Git，整個開發循環一手包辦。多檔案、後端、框架（React/Vue）、資料庫都能處理。
+    </div>
+  </div>
+  <div class="card card-accent-amber">
+    <div class="card-head"><div class="avatar av-amber">CW</div>Claude Cowork<span class="badge b-amber" style="margin-left:auto">桌機 App 整合 · Beta</span></div>
+    <p>桌機自動化工具。可操作本機視窗、整理檔案、執行文件任務。「你說目標，它去電腦上完成」，每步驟截圖識別再決定下一步。需要 VM 沙箱環境（Windows: VM Platform；Mac: Apple Silicon M1+）。</p>
+    <div style="margin-top:8px;background:#fef3c7;border-radius:6px;padding:8px 10px;font-size:12px;color:#92400e;line-height:1.6;border:1px solid #fcd34d">
+      <strong>🆕 最新版桌機 App 已整合：</strong>Cowork 也整合進 Claude Desktop App，在同一個 App 內切換 Tab 即可使用，不需要另外下載獨立工具。底層與 Code 使用相同引擎（Claude Code 架構），但介面設計給非技術知識工作者使用。
+    </div>
+    <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+      <strong style="color:var(--text)">製作網站 / 工具：</strong>可以生成 .html 存到本機，但沒有即時預覽，也不是設計目標。Cowork 的強項是辦公室自動化任務，而不是開發工作。
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid #34d399;border-radius:0 10px 10px 0;padding:12px 16px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:600;color:#065f46;margin-bottom:6px">🆕 Claude Desktop App：三合一介面（2026 最新）</div>
+    <div style="font-size:12.5px;color:#047857;line-height:1.8">
+      最新版 Claude Desktop App 已將三個產品整合為同一個 App 內的三個 Tab：<strong>Chat ／ Code（&lt;/&gt;） ／ Cowork</strong>，可直接在 App 內切換，不需要分別安裝不同工具。<br>
+      ⚠ <strong>網頁版 claude.ai 只有 Chat</strong>，無法切換到 Code 或 Cowork Tab，這兩個功能僅限桌機 App 使用。
+    </div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">三大產品完整比較</div>
+  <table style="margin-bottom:14px">
+    <thead><tr>
+      <th style="width:24%">面向</th>
+      <th><span class="badge b-blue">Claude Chat</span></th>
+      <th><span class="badge b-teal">Claude Code</span></th>
+      <th><span class="badge b-amber">Claude Cowork</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong>本質</strong></td><td>通用 AI 對話助理</td><td>工程師開發伙伴</td><td>桌機自動化執行工具</td></tr>
+      <tr><td><strong>使用方式</strong></td><td>網頁 / App，對話式</td><td>終端機 CLI <em>或</em> 桌機 App Code Tab</td><td>桌機 App Cowork Tab</td></tr>
+      <tr><td><strong>適用對象</strong></td><td>一般使用者、專業人士</td><td>軟體開發者、工程師</td><td>非技術人員、辦公室工作者</td></tr>
+      <tr><td><strong>讀整個 Repo</strong></td><td class="cross">✕ 只能看上傳的檔案</td><td class="check">✓ 完整理解 Codebase</td><td class="cross">✕</td></tr>
+      <tr><td><strong>執行程式 / 跑測試</strong></td><td class="cross">✕</td><td class="check">✓</td><td class="half">△ VM 沙箱內可執行</td></tr>
+      <tr><td><strong>安裝套件 / 操作 Git</strong></td><td class="cross">✕</td><td class="check">✓</td><td class="cross">✕</td></tr>
+      <tr><td><strong>操作本機視窗 / 滑鼠</strong></td><td class="cross">✕</td><td class="cross">✕（僅終端機）</td><td class="check">✓ Computer Use</td></tr>
+      <tr><td><strong>Artifacts 即時預覽</strong></td><td class="check">✓ 對話中即時渲染</td><td class="cross">✕</td><td class="cross">✕</td></tr>
+      <tr><td><strong>產出 PPT / Word / Excel</strong></td><td class="half">△ 下載連結</td><td class="half">△ 可產出需手動開啟</td><td class="check">✓ 直接存本機可編輯</td></tr>
+      <tr><td><strong>背景自動執行</strong></td><td class="cross">✕</td><td class="half">△ Remote 模式</td><td class="check">✓（需 App 開啟）</td></tr>
+      <tr><td><strong>單頁網站 / 快速原型</strong></td><td class="check">✓ 首選</td><td class="half">△ 殺雞用牛刀</td><td class="half">△ 可但不流暢</td></tr>
+      <tr><td><strong>多檔案 App / 後端開發</strong></td><td class="cross">✕</td><td class="check">✓ 首選</td><td class="cross">✕</td></tr>
+      <tr><td><strong>辦公室自動化 / 文件處理</strong></td><td class="half">△</td><td class="cross">✕</td><td class="check">✓ 首選</td></tr>
+      <tr><td><strong>需要 VM 環境</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓ Windows VM Platform</td></tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">三者底層都使用 Claude 模型，但入口不同、能力範圍不同。<strong>簡單工具 / 單頁網站</strong>用 Chat Artifact 最方便；<strong>真正的 App 開發</strong>用 Claude Code；<strong>辦公室自動化</strong>用 Cowork。</div>
+
+  <div class="divider"></div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:4px">裝了 MCP + Skills 的 Claude Code，還需要 Cowork 嗎？</div>
+  <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6">如果你的 Claude Code 環境已安裝 Claude in Chrome、Cowork Skills（xlsx / pptx / docx）等工具，功能上已接近 Cowork 的 <strong>80%</strong>。以下是剩下 20% 的差異。</div>
+
+  <table style="margin-bottom:14px">
+    <thead><tr>
+      <th style="width:28%">能力</th>
+      <th>Code Tab + MCP + Skills</th>
+      <th>Cowork Tab</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong>複製 / 整理本機檔案</strong></td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>產出 PPT / Word / Excel</strong></td><td class="check">✓ 需裝 Cowork Skills</td><td class="check">✓ 內建</td></tr>
+      <tr><td><strong>控制瀏覽器</strong></td><td class="check">✓ 需裝 Claude in Chrome MCP</td><td class="check">✓ 內建</td></tr>
+      <tr><td><strong>操作桌面視窗（Computer Use）</strong></td><td class="check">✓ 開啟 Computer Use 後</td><td class="check">✓ 內建</td></tr>
+      <tr><td><strong>讀整個 Codebase / 跑測試 / Git</strong></td><td class="check">✓ <strong>Code 獨有強項</strong></td><td class="cross">✕</td></tr>
+      <tr><td><strong>排程任務（定時自動執行）</strong></td><td class="cross">✕</td><td class="check">✓ <strong>Cowork 獨有</strong></td></tr>
+      <tr><td><strong>Dispatch（手機遠端指派任務）</strong></td><td class="cross">✕</td><td class="check">✓ <strong>Cowork 獨有</strong></td></tr>
+      <tr><td><strong>長任務進度視覺化 UI</strong></td><td class="cross">✕</td><td class="check">✓ <strong>Cowork 獨有</strong></td></tr>
+      <tr><td><strong>非技術用戶友善度</strong></td><td class="half">△ 偏開發者介面</td><td class="check">✓ 設計給一般使用者</td></tr>
+    </tbody>
+  </table>
+
+  <div class="grid2" style="margin-bottom:12px">
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid #34d399;border-radius:0 10px 10px 0;padding:12px 14px">
+      <div style="font-size:12px;font-weight:600;color:#065f46;margin-bottom:6px">✅ Code + MCP 就夠的情境</div>
+      <div style="font-size:12px;color:#047857;line-height:1.8">
+        ✓ 整理檔案、產出 Office 文件<br>
+        ✓ 控制瀏覽器、填表<br>
+        ✓ 撰寫 / 修改程式碼、跑測試<br>
+        ✓ 臨時性任務（當下執行即可）<br>
+        ✓ 電腦硬體不支援 Cowork VM
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-left:3px solid #fbbf24;border-radius:0 10px 10px 0;padding:12px 14px">
+      <div style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:6px">⚡ 真正需要 Cowork 的情境</div>
+      <div style="font-size:12px;color:#b45309;line-height:1.8">
+        ✓ <strong>排程</strong>：每週五自動整理報告<br>
+        ✓ <strong>Dispatch</strong>：手機下指令電腦背景跑<br>
+        ✓ <strong>長任務追蹤</strong>：視覺化看每步驟進度<br>
+        ✓ 完全不熟悉開發工具的使用者<br>
+        ✓ 複雜多步驟知識工作自動化
+      </div>
+    </div>
+  </div>
+
+  <div class="success-box"><strong>結論：</strong>Code + MCP + Skills ≈ Cowork 80% 功能，且程式開發能力更強。真正只有 Cowork 才有的是：<strong>排程任務、Dispatch 手機遠端、長任務追蹤 UI</strong>。不需要這三個的話，現有 Code 環境就足夠了。</div>
+</div>
+
+<!-- PAGE 2: Desktop vs Web -->
+<div class="page" id="pg2">
+  <div class="page-eyebrow">Claude 基礎 · 03</div>
+  <div class="page-title">桌機版 vs 網頁版</div>
+  <div class="page-sub">Claude 桌機 App 現已整合 Chat / Code / Cowork 三個 Tab；網頁版 claude.ai 僅有 Chat。</div>
+  <div class="warn-box" style="margin-bottom:16px">⚠ <strong>網頁版 claude.ai 無法切換到 Code 或 Cowork</strong>——這兩個功能只存在於桌機 App 的 Tab 切換器中。你在截圖看到的 <code style="background:rgba(0,0,0,.06);padding:1px 5px;border-radius:3px">&lt;/&gt;</code> 圖示就是 Code Tab 的入口，只有桌機 App 才有。</div>
+  <table>
+    <thead><tr><th>功能</th><th>網頁版 claude.ai</th><th>桌機版 Claude App（Chat Tab）</th><th>桌機版 Claude App（Code Tab）</th><th>桌機版 Claude App（Cowork Tab）</th></tr></thead>
+    <tbody>
+      <tr><td><strong>核心對話功能</strong></td><td class="check">✓</td><td class="check">✓</td><td class="cross">✕</td><td class="cross">✕</td></tr>
+      <tr><td><strong>Projects / Artifacts</strong></td><td class="check">✓</td><td class="check">✓</td><td class="cross">✕</td><td class="cross">✕</td></tr>
+      <tr><td><strong>MCP Connector</strong></td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td></tr>
+      <tr><td><strong>讀整個 Codebase / 執行程式</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓ 完整 Claude Code 能力</td><td class="cross">✕</td></tr>
+      <tr><td><strong>整合終端機 / Diff Viewer</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓ GUI 介面整合</td><td class="cross">✕</td></tr>
+      <tr><td><strong>截圖 / 看螢幕</strong></td><td class="cross">✕</td><td class="half">△ 需手動</td><td class="cross">✕</td><td class="check">✓ 自動截圖識別</td></tr>
+      <tr><td><strong>操作視窗 / 滑鼠鍵盤</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓</td></tr>
+      <tr><td><strong>背景自動執行</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="half">△ Routines（雲端執行）</td><td class="check">✓（需 App 開啟）</td></tr>
+      <tr><td><strong>需要 VM 環境</strong></td><td class="cross">✕</td><td class="cross">✕</td><td class="cross">✕</td><td class="check">✓ Windows VM Platform / Mac M1+</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box">最新版 Claude Desktop App 在同一個介面裡整合了三個 Tab（Chat ／ Code ／ Cowork），切換圖示在左側邊欄。<strong>網頁版 claude.ai 無論如何都只有 Chat，無法切換到 Code 或 Cowork</strong>——要用這兩個功能必須安裝桌機 App。</div>
+
+  <div class="divider"></div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:4px">Windows VM Platform 是什麼？為什麼需要？</div>
+  <div style="font-size:13px;color:var(--text-2);margin-bottom:16px;line-height:1.7">VM Platform 是 Windows 內建的虛擬化功能，也是 WSL2、Windows Sandbox 的底層技術。Cowork 需要它在你的電腦上啟動一個輕量 Linux 虛擬機，作為 Claude 跑程式碼和處理檔案的隔離環境。即使 Claude 執行出錯，也不會影響你真實的作業系統。</div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:12px">VM 沙箱與真實環境的關係</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+      <div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 32px;font-size:12.5px;font-weight:600;color:#1e40af;text-align:center">
+        你授權的資料夾（真實檔案系統）
+      </div>
+      <div style="font-size:20px;color:#94a3b8;line-height:1.1;margin:2px 0">⇅</div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">掛載進去（VirtIO mount）</div>
+      <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:14px 32px;font-size:12.5px;color:#166534;text-align:center;width:100%;max-width:440px">
+        <div style="font-weight:600;margin-bottom:6px">VM 沙箱（Linux 虛擬機，隔離環境）</div>
+        <div style="font-size:11.5px;line-height:1.8">Claude 在這裡跑程式碼、執行 Shell 指令、處理檔案<br>安裝套件、生成文件（PPT / Word / Excel）</div>
+      </div>
+      <div style="font-size:20px;color:#94a3b8;line-height:1.1;margin:2px 0">↓</div>
+      <div style="font-size:11px;color:#94a3b8;margin-bottom:6px">產出結果直接寫回</div>
+      <div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:8px;padding:10px 32px;font-size:12.5px;font-weight:600;color:#1e40af;text-align:center">
+        你授權的資料夾（真實檔案系統）
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:12px;color:#64748b;line-height:1.7;background:#fff;border-radius:6px;padding:8px 12px;border:1px solid var(--border-light)">
+      ⚠ 沙箱不是「預覽區」——操作結果即時直接寫入你的真實資料夾，沒有二次確認機制。請謹慎授權資料夾範圍。
+    </div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:8px">什麼動作走 VM 沙箱？什麼動作走 Computer Use？</div>
+  <div style="font-size:12.5px;color:var(--text-2);margin-bottom:12px;line-height:1.6">Cowork 不是每個任務都會啟動 Computer Use。Claude 優先使用最精準的工具：<strong>有 Connector 就用 Connector，沒有才開瀏覽器，最後才截圖操作畫面。</strong></div>
+
+  <table style="margin-bottom:14px">
+    <thead><tr>
+      <th>動作類型</th>
+      <th style="background:#f0fdf4;color:#065f46">走 VM 沙箱</th>
+      <th style="background:#fef2f2;color:#991b1b">走 Computer Use（真實桌面）</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>檔案處理</strong></td>
+        <td style="background:#f0fdf4">✓ 整理資料夾、讀寫檔案、轉換格式</td>
+        <td style="background:#fef2f2;color:#94a3b8">✗ 不需要</td>
+      </tr>
+      <tr>
+        <td><strong>程式執行</strong></td>
+        <td style="background:#f0fdf4">✓ 跑 Python/Shell、安裝套件、執行腳本</td>
+        <td style="background:#fef2f2;color:#94a3b8">✗ 不需要</td>
+      </tr>
+      <tr>
+        <td><strong>產出文件</strong></td>
+        <td style="background:#f0fdf4">✓ 生成 PPT / Word / Excel / PDF</td>
+        <td style="background:#fef2f2;color:#94a3b8">✗ 不需要</td>
+      </tr>
+      <tr>
+        <td><strong>有 Connector 的服務</strong></td>
+        <td style="background:#f0fdf4">✓ 透過 MCP（Gmail、Slack、GitHub 等）</td>
+        <td style="background:#fef2f2;color:#94a3b8">✗ 不需要，Connector 優先</td>
+      </tr>
+      <tr>
+        <td><strong>沒有 Connector 的網站</strong></td>
+        <td style="background:#f1f5f9;color:#94a3b8">✗ VM 無法操作瀏覽器畫面</td>
+        <td style="background:#fef2f2">✓ 開瀏覽器、點擊、填表（如訂票）</td>
+      </tr>
+      <tr>
+        <td><strong>操作桌面 App</strong></td>
+        <td style="background:#f1f5f9;color:#94a3b8">✗</td>
+        <td style="background:#fef2f2">✓ 截圖識別、移動滑鼠、鍵盤輸入</td>
+      </tr>
+      <tr>
+        <td><strong>讀取螢幕內容</strong></td>
+        <td style="background:#f1f5f9;color:#94a3b8">✗</td>
+        <td style="background:#fef2f2">✓ 可看到螢幕上所有可見資訊</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:3px solid #34d399;border-radius:0 10px 10px 0;padding:12px 14px">
+      <div style="font-size:12px;font-weight:600;color:#065f46;margin-bottom:6px">VM 沙箱保護範圍</div>
+      <div style="font-size:12px;color:#047857;line-height:1.8">
+        ✓ 出錯不影響真實作業系統<br>
+        ✓ 只能存取你明確授權的資料夾<br>
+        ✓ 網路存取依你設定的規則<br>
+        ✗ 非預覽確認機制，寫入即時生效
+      </div>
+    </div>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #f87171;border-radius:0 10px 10px 0;padding:12px 14px">
+      <div style="font-size:12px;font-weight:600;color:#991b1b;margin-bottom:6px">Computer Use 注意事項</div>
+      <div style="font-size:12px;color:#b91c1c;line-height:1.8">
+        ⚠ 完全繞過 VM，直接在真實桌面執行<br>
+        ⚠ 可看到螢幕上所有資訊（含敏感內容）<br>
+        ⚠ 使用你真實的瀏覽器與 cookies<br>
+        ⚠ 只有在沒有 Connector 時才會啟動
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">⚠ Anthropic 明確建議：不要用 Cowork 處理受監管的工作內容（金融、醫療、法律）。Cowork 的操作紀錄不會進入稽核日誌，目前不適合企業合規場景。</div>
+</div>
+
+<!-- PAGE 3: Skill -->
+<div class="page" id="pg3">
+  <div class="page-eyebrow">Claude 基礎 · 04</div>
+  <div class="page-title">Skill 是什麼？</div>
+  <div class="page-sub">「Skill」在 Claude 生態裡出現在三個不同地方，指的是完全不同的東西。</div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">① claude.ai Agent Skills — 付費使用者可用</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;font-size:13px;color:var(--text-2);line-height:1.7">
+    claude.ai 的 Skill 分兩種：<strong style="color:var(--text)">預建 Skills</strong>（Anthropic 官方提供，如 skill-creator、PPT、Word、PDF skill，付費用戶開箱即用）和<strong style="color:var(--text)">自訂 Skills</strong>（使用者自己上傳 ZIP 檔，透過 Settings → Features，Pro 以上方案可用）。
+  </div>
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="card-head">✨ skill-creator（預建）</div>
+      <p>把你剛才在對話中完成的任務包成可重複使用的 Skill。你不需要是開發者，對話完成後直接說「把這個包成 Skill」即可。</p>
+    </div>
+    <div class="card">
+      <div class="card-head">📦 自訂 Skill（上傳）</div>
+      <p>將自己寫好的 SKILL.md 打包成 ZIP，透過 Settings → Features 上傳。之後 Claude 在相關任務時會自動載入或透過斜線指令呼叫。</p>
+    </div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">② Cowork Skill — 本機 SKILL.md 檔案</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.7">
+    存放在本機 <code style="background:var(--border-light);padding:1px 6px;border-radius:4px;font-size:12px">/mnt/skills/</code> 資料夾（或 Copilot Cowork 的 OneDrive）的 Markdown 檔案。定義「如何完成一項任務」的步驟、工具調用方式、輸出格式。Cowork 在每次對話開始時自動載入。使用者可以自己編寫和修改，也可以用 skill-creator 從對話中建立。
+  </div>
+
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">③ API 層 Skill — 開發者 System Prompt 設定</div>
+  <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:var(--text-2);line-height:1.7">
+    開發者在 API 程式碼層設定 System Prompt，預先定義 Claude 的角色、工具、輸出格式。使用者完全看不到這層設定。適合建立企業內部的專用 AI 應用。
+  </div>
+
+  <div class="divider"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">四種 Skill 完整對比</div>
+  <table style="margin-bottom:14px">
+    <thead><tr>
+      <th></th>
+      <th>claude.ai Agent Skill</th>
+      <th>Cowork Skill（SKILL.md）</th>
+      <th>API 層 Skill</th>
+      <th>Projects 自訂指令</th>
+    </tr></thead>
+    <tbody>
+      <tr><td><strong>本質</strong></td><td>預建或上傳的能力包</td><td>本機任務執行說明書</td><td>System Prompt 設定</td><td>對話層角色與記憶</td></tr>
+      <tr><td><strong>誰能建立</strong></td><td>任何付費使用者</td><td>任何使用者</td><td>開發者 / IT</td><td>任何使用者</td></tr>
+      <tr><td><strong>建立方式</strong></td><td>skill-creator 或上傳 ZIP</td><td>對話建立或自行編寫</td><td>寫程式碼</td><td>介面直接設定</td></tr>
+      <tr><td><strong>存放位置</strong></td><td>claude.ai 帳號</td><td>本機或 OneDrive</td><td>API 程式碼層</td><td>claude.ai 介面</td></tr>
+      <tr><td><strong>Claude Chat 可用？</strong></td><td class="check">✓</td><td class="cross">✕</td><td class="check">✓（背景套用）</td><td class="check">✓</td></tr>
+      <tr><td><strong>Claude Cowork 可用？</strong></td><td class="cross">✕</td><td class="check">✓</td><td class="cross">✕</td><td class="cross">✕</td></tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">Skill 和 Project 的共享能力</div>
+  <table style="margin-bottom:14px">
+    <thead><tr>
+      <th>平台 / 功能</th>
+      <th>可以共享嗎？</th>
+      <th>說明</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>claude.ai Skill</strong></td>
+        <td class="cross">✕ 個人專屬</td>
+        <td>只屬於上傳的那個使用者，無法共享給其他成員，管理員也無法統一分發</td>
+      </tr>
+      <tr>
+        <td><strong>Claude API Skill</strong></td>
+        <td class="check">✓ Workspace 共用</td>
+        <td>同一 Workspace 內所有成員共用，是目前最適合企業部署的方式</td>
+      </tr>
+      <tr>
+        <td><strong>Claude Code Skill</strong></td>
+        <td class="check">✓ 可透過 Plugin 共享</td>
+        <td>放在專案 .claude/skills/ 資料夾，Clone Repo 的人自動獲得；或打包成 Plugin 分發</td>
+      </tr>
+      <tr>
+        <td><strong>Cowork Skill（本機）</strong></td>
+        <td class="cross">✕ 個人專屬</td>
+        <td>存在本機，只有自己能用；Copilot Cowork 存在 OneDrive，同樣個人專屬</td>
+      </tr>
+      <tr>
+        <td><strong>Project（Free / Pro）</strong></td>
+        <td class="cross">✕ 個人專屬</td>
+        <td>只有自己可以存取</td>
+      </tr>
+      <tr>
+        <td><strong>Project（Team）</strong></td>
+        <td class="check">✓ 團隊共享</td>
+        <td>可建立團隊共用 Project，成員共享對話脈絡、上傳文件與自訂指令</td>
+      </tr>
+      <tr>
+        <td><strong>Project（Enterprise）</strong></td>
+        <td class="check">✓ 組織共享</td>
+        <td>同上，加上更完整的管理控制與權限設定</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">如果你們公司想讓所有人共用同一組 Skill，目前在 claude.ai 做不到（個人專屬）。要實現組織共用，目前最可行的方式是透過 Claude API 部署，或等 Anthropic 推出 claude.ai 的 admin 管理功能。</div>
+  <div class="warn-box">⚠ Skill 不等於 Project。Projects 是「資料夾＋記憶」功能；Skill 是可重複執行的能力包。claude.ai Skill 和 Cowork Skill 是不同系統，互相讀不到，不能共用。</div>
+</div>
+
+<!-- PAGE 4: Chat/Projects/Artifacts/Customize -->
+<div class="page" id="pg4">
+  <div class="page-eyebrow">功能模組 · 05</div>
+  <div class="page-title">Chat · Projects · Artifacts · Customize</div>
+  <div class="page-sub">claude.ai 的四個核心功能模組，各有不同定位與使用情境。</div>
+  <div class="card card-accent-blue">
+    <div class="card-head">💬 Chat（對話）<span class="badge b-blue" style="margin-left:auto">最核心</span></div>
+    <p>最基礎的對話介面。每個 Chat 是獨立情境，不跨 session 保留記憶（除非開啟記憶功能或使用 Projects）。</p>
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border-light);display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+        <div style="font-weight:600;color:var(--text);margin-bottom:3px">🔎 Research</div>
+        深度研究模式。自動執行多輪搜尋、交叉比對多個來源，花數分鐘產出有引用來源的完整報告。適合「深入研究某主題」，不適合簡單問答。
+      </div>
+      <div style="background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+        <div style="font-weight:600;color:var(--text);margin-bottom:3px">📎 Add files or photos</div>
+        手動上傳本機檔案給 Claude 閱讀分析。這是「你選檔案給 Claude 看」，不是「Claude 去你電腦裡操作檔案」。後者只有 Cowork 做得到。
+      </div>
+    </div>
+  </div>
+  <div class="card card-accent-purple">
+    <div class="card-head">📁 Projects（專案）<span class="badge b-purple" style="margin-left:auto">Pro / Team / Enterprise</span></div>
+    <p>整合多個 Chat 至同一專案，可上傳背景文件（PDF/Word 等）、設定自訂指令。Claude 在此專案所有對話都能記住設定與文件。適合法律審查、品牌指南等長期重複工作情境。</p>
+    <div style="margin-top:8px;font-size:12px;color:var(--text-2)">共享：Free / Pro 個人專屬 ／ Team 可建立團隊共用 Project ／ Enterprise 加上完整管理控制</div>
+  </div>
+  <div class="card card-accent-teal">
+    <div class="card-head">🖼 Artifacts（成品）</div>
+    <p>Claude 在對話中生成並在右側面板即時渲染的獨立內容。支援格式：HTML、React、SVG、Markdown、程式碼。PPT/Word 等二進位檔不支援。</p>
+    <div style="margin-top:8px;background:var(--bg);border-radius:6px;padding:8px 10px;font-size:12px;color:var(--text-2);line-height:1.6">
+      <strong style="color:var(--text)">Artifacts 分頁裡看到的是什麼？</strong><br>
+      左側 Artifacts 分頁顯示的是你<strong>已 Publish 的 Artifacts</strong>，不是所有產出過的 Artifact。未 Publish 的 Artifact 存在原始對話的右側面板，要找回就回到那段對話。對話刪除後即消失。
+    </div>
+  </div>
+  <div class="card card-accent-amber">
+    <div class="card-head">🎨 Customize（個人化）</div>
+    <p>在 Settings 中設定回應風格、語言偏好、格式習慣（永遠用繁中、回答簡短等），也包含記憶管理（Memory）功能。</p>
+  </div>
+</div>
+
+<!-- PAGE 5: Output types -->
+<div class="page" id="pg5">
+  <div class="page-eyebrow">功能模組 · 06</div>
+  <div class="page-title">三種產出方式的差異</div>
+  <div class="page-sub">show_widget、Artifact、create_file 是完全不同的機制，決定了產出內容的去向與用途。</div>
+
+  <div class="grid3">
+    <div class="output-col">
+      <div class="output-col-head">
+        <div class="output-icon" style="background:#f1f5f9">🧩</div>
+        <div><div style="font-size:13px;font-weight:600">show_widget</div><div style="font-size:11px;color:var(--text-3)">內嵌視覺元件</div></div>
+      </div>
+      <div class="output-col-body">
+        <div class="output-row"><span class="output-label">渲染位置</span><span class="output-val">內嵌在對話訊息中</span></div>
+        <div class="output-row"><span class="output-label">Artifacts 分頁</span><span class="output-val cross">✕ 不出現</span></div>
+        <div class="output-row"><span class="output-label">可下載</span><span class="output-val cross">✕</span></div>
+        <div class="output-row"><span class="output-label">對話結束後</span><span class="output-val" style="color:var(--warning)">消失</span></div>
+        <div class="output-row"><span class="output-label">支援格式</span><div class="pill-row"><span class="pill">HTML</span><span class="pill">SVG</span></div></div>
+        <div class="output-row"><span class="output-label">典型用途</span><span class="output-val">呈現資訊的互動視覺元件（如本指南的前一版）</span></div>
+      </div>
+    </div>
+    <div class="output-col" style="border-color:#93c5fd">
+      <div class="output-col-head" style="background:#eff6ff">
+        <div class="output-icon" style="background:#dbeafe">✨</div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--blue-text)">Artifact</div><div style="font-size:11px;color:#60a5fa">正式成品機制</div></div>
+      </div>
+      <div class="output-col-body">
+        <div class="output-row"><span class="output-label">渲染位置</span><span class="output-val">右側面板即時預覽</span></div>
+        <div class="output-row"><span class="output-label">Artifacts 分頁</span><span class="output-val check">✓ 出現並保留</span></div>
+        <div class="output-row"><span class="output-label">可下載</span><span class="output-val check">✓ 可複製 / 下載</span></div>
+        <div class="output-row"><span class="output-label">對話結束後</span><span class="output-val" style="color:var(--success)">✓ 留在分頁</span></div>
+        <div class="output-row"><span class="output-label">支援格式</span><div class="pill-row"><span class="pill">HTML</span><span class="pill">React</span><span class="pill">SVG</span><span class="pill">MD</span><span class="pill">程式碼</span></div></div>
+        <div class="output-row"><span class="output-label">典型用途</span><span class="output-val">使用者要帶走的獨立成品（本指南這個版本）</span></div>
+      </div>
+    </div>
+    <div class="output-col">
+      <div class="output-col-head">
+        <div class="output-icon" style="background:#f1f5f9">📦</div>
+        <div><div style="font-size:13px;font-weight:600">create_file</div><div style="font-size:11px;color:var(--text-3)">伺服器端寫檔</div></div>
+      </div>
+      <div class="output-col-body">
+        <div class="output-row"><span class="output-label">渲染位置</span><span class="output-val">無渲染，只有下載連結</span></div>
+        <div class="output-row"><span class="output-label">Artifacts 分頁</span><span class="output-val cross">✕ 不出現</span></div>
+        <div class="output-row"><span class="output-label">可下載</span><span class="output-val check">✓ 點連結下載</span></div>
+        <div class="output-row"><span class="output-label">對話結束後</span><span class="output-val" style="color:var(--warning)">暫存，過期消失</span></div>
+        <div class="output-row"><span class="output-label">支援格式</span><div class="pill-row"><span class="pill">.pptx</span><span class="pill">.docx</span><span class="pill">.xlsx</span><span class="pill">任意</span></div></div>
+        <div class="output-row"><span class="output-label">典型用途</span><span class="output-val">二進位檔案（PPT/Word/Excel），瀏覽器無法直接渲染</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div style="font-size:13px;font-weight:600;margin-bottom:10px">Artifact 分頁與 Publish 說明</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head">📂 Artifacts 分頁</div>
+      <p>左側 Artifacts 分頁顯示的是你<strong>已 Publish 的 Artifacts</strong>，不是所有產出過的 Artifact。未 Publish 的 Artifact 只存在於原始對話的右側面板，回到那段對話才看得到。對話刪除後即消失。</p>
+    </div>
+    <div class="card">
+      <div class="card-head">🌐 Publish 功能</div>
+      <p>把 Artifact 發佈成公開網址讓別人瀏覽。目前只有 Public，沒有私人保存選項。想私人保存：複製程式碼存到本機，或使用 create_file 產出的 HTML 檔案下載保存。</p>
+    </div>
+  </div>
+  <div class="info-box">Artifact 產出 → 存在對話右側面板（未 Publish）→ 點 Publish 後才出現在左側 Artifacts 分頁。show_widget 和 create_file 的產出無論是否 Publish 都不會進入 Artifacts 分頁。</div>
+</div>
+
+<!-- PAGE 8: Copilot Family -->
+<div class="page" id="pg8">
+  <div class="page-eyebrow">Copilot 生態 · 09</div>
+  <div class="page-title">Microsoft Copilot 產品家族</div>
+  <div class="page-sub">M365 Copilot · Copilot Cowork · Copilot Studio — 三個不同定位的產品。</div>
+  <div class="card card-accent-blue">
+    <div class="card-head">💬 M365 Copilot<span class="badge b-blue" style="margin-left:auto">$30/人/月</span></div>
+    <p>嵌入 Word/Excel/PPT/Outlook/Teams 的 AI 側欄助理。一次只能在單一 App 內工作。個別員工日常生產力提升用。</p>
+  </div>
+  <div class="card card-accent-purple">
+    <div class="card-head">🚀 Copilot Cowork<span class="badge b-purple" style="margin-left:auto">Wave 3，含在 M365 Copilot 內</span><span class="badge b-amber" style="margin-left:4px">Frontier Beta</span></div>
+    <p>M365 Copilot 的重大升級，底層技術來自 Claude Cowork。跨 App 任務引擎，同時讀取 Outlook/Teams/SharePoint，背景執行數小時。已付 M365 Copilot 授權者不需額外付費，但需申請 Frontier 計畫。Skill 存在 OneDrive（SKILL.md 格式，最多 20 個）。</p>
+  </div>
+  <div class="card card-accent-amber">
+    <div class="card-head">🏗 Copilot Studio<span class="badge b-amber" style="margin-left:auto">按查詢量計費</span></div>
+    <p>給開發者 / IT 部門的低程式碼平台，自建企業專用 AI Agent。可連 SAP、Salesforce、自有資料庫，設計審批流程。基本 Agent 建立含在 M365 Copilot 授權內；高用量及複雜外部整合需額外計費。</p>
+  </div>
+  <div class="info-box">記法：M365 Copilot = 個人助理（App 內幫你） → Copilot Cowork = 執行助理（跨 App 幫你做事） → Copilot Studio = Agent 工廠（IT 為組織自建 AI）</div>
+</div>
+
+<!-- PAGE 9: M365 License Features -->
+<div class="page" id="pg9">
+  <div class="page-eyebrow">Copilot 生態 · 10</div>
+  <div class="page-title">M365 Copilot License 功能總覽</div>
+  <div class="page-sub">付費授權（$30/人/月）解鎖的能力，需先有 M365 E3/E5/Business Premium 等基礎授權。</div>
+  <table>
+    <thead><tr><th style="width:16%">場景</th><th>主要功能</th></tr></thead>
+    <tbody>
+      <tr><td>📧 Outlook</td><td>郵件草擬與改寫、整封信摘要、整個信箱語意搜尋、自動分類整理、語音操作收件匣（手機）</td></tr>
+      <tr><td>🎥 Teams 會議</td><td>會議記錄彙整、行動項目提取、Video Recap 影片摘要（2026 新）、會議中即時 Q&A</td></tr>
+      <tr><td>💬 Teams 聊天</td><td>對話串摘要、找出需回覆訊息、頻道重點整理</td></tr>
+      <tr><td>📝 Word</td><td>從描述生成文件、改寫摘要、Agent Mode 多步驟編輯、引用來源自動標註</td></tr>
+      <tr><td>📊 Excel</td><td>資料分析、公式建議、圖表生成、Work IQ 自動帶入 Email/Teams 相關脈絡</td></tr>
+      <tr><td>📊 PowerPoint</td><td>從描述或 Word 文件生成完整簡報、套公司範本與 Brand Kit、Agent Mode</td></tr>
+      <tr><td>🔍 Copilot Search</td><td>跨 M365 語意搜尋（Email / Teams / SharePoint / OneDrive），自然語言找人找文件</td></tr>
+      <tr><td>🤖 Copilot Studio</td><td>基本 Lite Agent 建立含在授權內；連接 SAP/Salesforce 等外部系統需另計費</td></tr>
+      <tr><td>🔗 Connector</td><td>Canva、HubSpot、Notion、Google Calendar 等外部服務即時連接（2026 新）</td></tr>
+      <tr><td>🚀 Copilot Cowork</td><td>跨 App 多步驟任務執行、背景自動化、自訂 Skill（OneDrive SKILL.md，上限 20 個）</td></tr>
+    </tbody>
+  </table>
+  <div class="warn-box">⚠ 2026/4/15 起，無 M365 Copilot License 者，Word/Excel/PPT/OneNote 內 Copilot 側欄關閉。2026/7/1 起商業版定價調漲，建議提前評估。</div>
+</div>
+
+<!-- PAGE 6: File connections -->
+<div class="page" id="pg6">
+  <div class="page-eyebrow">功能模組 · 07</div>
+  <div class="page-title">檔案連線能力</div>
+  <div class="page-sub">本機 · OneDrive · Google Drive · SharePoint · SAP 等企業系統。</div>
+  <table>
+    <thead><tr><th style="width:20%">來源</th><th>Claude Chat</th><th>Claude Cowork</th><th>M365 Copilot</th></tr></thead>
+    <tbody>
+      <tr><td><strong>本機檔案</strong></td><td>手動上傳（PDF/Word/Excel/圖片）</td><td class="check">✓ 直接讀取本機資料夾</td><td class="cross">✕ 需先上傳至 M365</td></tr>
+      <tr><td><strong>Google Drive</strong></td><td class="check">✓ 官方 Connector</td><td class="half">△ 透過 MCP</td><td class="cross">✕</td></tr>
+      <tr><td><strong>OneDrive / SharePoint</strong></td><td class="cross">✕ 尚無官方 Connector</td><td class="half">△ 需自建 MCP</td><td class="check">✓ 原生支援</td></tr>
+      <tr><td><strong>SAP / ERP</strong></td><td class="half">△ 需自建 MCP Server</td><td class="half">△ 需自建 MCP Server</td><td class="half">△ 需 Copilot Studio</td></tr>
+      <tr><td><strong>掃描 PDF</strong></td><td class="check">✓ 直接讀取圖片文字</td><td class="check">✓</td><td class="half">△ 需先 OCR 處理</td></tr>
+    </tbody>
+  </table>
+  <div class="info-box">Claude 讀取 SharePoint 目前最實際做法：① 手動下載再上傳 ② 等官方 SharePoint Connector 推出 ③ IT 透過 Microsoft Graph API 自建 MCP Server。</div>
+  <div class="warn-box">公司 Claude 目前只有 M365 讀取權限（無法寄信/傳 Teams），根本原因是 IT 只開了 Read 權限。追加 Mail.Send、ChannelMessage.Send 等寫入權限即可解決，不需換工具。</div>
+</div>
+
+<!-- PAGE 7: MCP & Connector -->
+<div class="page" id="pg7">
+  <div class="page-eyebrow">功能模組 · 08</div>
+  <div class="page-title">MCP & Connector</div>
+  <div class="page-sub">Model Context Protocol — Anthropic 開源的標準連接協議，讓任何服務都能接上 Claude。</div>
+  <div class="info-box">MCP 就像 USB-C 標準，提供統一介面讓 Claude 連接外部工具、資料庫與服務，不需為每個服務寫不同的整合程式。</div>
+  <div class="flow-row" style="margin:16px 0">
+    <div class="flow-box active">Claude AI</div>
+    <div class="flow-arrow">⟷</div>
+    <div class="flow-box">MCP Protocol</div>
+    <div class="flow-arrow">⟷</div>
+    <div class="flow-box">MCP Server</div>
+    <div class="flow-arrow">⟷</div>
+    <div class="flow-box">外部服務 / 資料</div>
+  </div>
+  <table>
+    <thead><tr><th>Connector</th><th>類型</th><th>能做什麼</th></tr></thead>
+    <tbody>
+      <tr><td>Google Drive</td><td><span class="badge b-teal">官方</span></td><td>搜尋、讀取雲端文件</td></tr>
+      <tr><td>Gmail</td><td><span class="badge b-teal">官方</span></td><td>讀取郵件、草擬回覆</td></tr>
+      <tr><td>Slack</td><td><span class="badge b-blue">第三方</span></td><td>讀取頻道、發送訊息</td></tr>
+      <tr><td>GitHub</td><td><span class="badge b-blue">第三方</span></td><td>讀取 Repo、PR 審查、Issues 管理</td></tr>
+      <tr><td>Jira / Asana</td><td><span class="badge b-blue">第三方</span></td><td>任務建立、查詢、更新狀態</td></tr>
+      <tr><td>Salesforce</td><td><span class="badge b-blue">第三方</span></td><td>CRM 聯絡人、商機資料查詢</td></tr>
+      <tr><td>SAP / 自有系統</td><td><span class="badge b-amber">需自建</span></td><td>透過 MCP Server 開發橋接層連接</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PAGE 10: Cowork Comparison -->
+<div class="page" id="pg10">
+  <div class="page-eyebrow">Copilot 生態 · 11</div>
+  <div class="page-title">Cowork 比較</div>
+  <div class="page-sub">Claude Cowork vs Copilot Cowork — 現階段功能評估與後續行動。</div>
+  <div class="cowork-grid">
+    <div class="cowork-card">
+      <div class="cowork-head">
+        <div class="avatar av-purple">Co</div>
+        <div><div style="font-size:14px;font-weight:600">Copilot Cowork</div><div style="font-size:11px;color:var(--text-3);margin-top:2px">Microsoft — Frontier Beta</div></div>
+      </div>
+      <div class="feat-row"><div class="dot dot-purple"></div><div class="feat-text">自動整合 M365 生態系 <small>（Outlook / Teams / SharePoint）</small></div></div>
+      <div class="feat-row"><div class="dot dot-purple"></div><div class="feat-text">產出可編輯 PPT / Word / Excel，直存 OneDrive</div></div>
+      <div class="feat-row"><div class="dot dot-purple"></div><div class="feat-text">跨 App 任務背景執行 <small>（可長達數小時，電腦可離開）</small></div></div>
+      <div class="feat-row"><div class="dot dot-purple"></div><div class="feat-text">AI：預設 GPT，少部分場景可選 Claude</div></div>
+      <div class="feat-row"><div class="dot dot-purple"></div><div class="feat-text">企業安全治理 <small>（Entra ID / DLP / Purview 原生整合）</small></div></div>
+    </div>
+    <div class="cowork-card">
+      <div class="cowork-head">
+        <div class="avatar av-teal">Cl</div>
+        <div><div style="font-size:14px;font-weight:600">Claude Cowork</div><div style="font-size:11px;color:var(--text-3);margin-top:2px">Anthropic — Beta</div></div>
+      </div>
+      <div class="feat-row"><div class="dot dot-teal"></div><div class="feat-text">直接操作本機工具、程式、資料夾、瀏覽器視窗</div></div>
+      <div class="feat-row"><div class="dot dot-teal"></div><div class="feat-text">產出可編輯 PPT / Word / Excel，存本機 <small>（需 App 開啟）</small></div></div>
+      <div class="feat-row"><div class="dot dot-teal"></div><div class="feat-text">Skill 存本機，可調用更廣泛的工具與程式</div></div>
+      <div class="feat-row"><div class="dot dot-teal"></div><div class="feat-text">AI：自家最新 Claude，Coding 處理優勢明顯</div></div>
+      <div class="feat-row"><div class="dot dot-teal"></div><div class="feat-text">文件比對、非結構化資料處理相對有優勢</div></div>
+      <div class="note-pill">這在一些文件比對、資料處理的需求上有蠻大的幫助</div>
+    </div>
+  </div>
+
+  <table style="margin-bottom:16px">
+    <thead><tr><th style="width:22%">面向</th><th>Copilot Cowork</th><th>Claude Cowork</th></tr></thead>
+    <tbody>
+      <tr><td><strong>資料來源</strong></td><td><span class="check">✓</span> M365 雲端原生</td><td><span class="check">✓</span> 本機檔案 / 瀏覽器</td></tr>
+      <tr><td><strong>背景執行</strong></td><td><span class="check">✓</span> 可離開電腦</td><td><span class="half">△</span> 需保持 App 開啟</td></tr>
+      <tr><td><strong>文件產出</strong></td><td><span class="check">✓</span> 直存 OneDrive</td><td><span class="check">✓</span> 存本機</td></tr>
+      <tr><td><strong>Coding</strong></td><td><span class="cross">–</span> 非設計目標</td><td><span class="check">✓</span> 明顯優勢</td></tr>
+      <tr><td><strong>AI 模型</strong></td><td>GPT 為主，部分可選 Claude</td><td>最新 Claude（自家直用）</td></tr>
+      <tr><td><strong>企業治理</strong></td><td><span class="check">✓</span> M365 原生</td><td><span class="half">△</span> 需另行設計</td></tr>
+      <tr><td><strong>現況</strong></td><td>Frontier Beta <span class="badge b-amber">需申請</span></td><td>Beta <span class="badge b-amber">持續更新</span></td></tr>
+    </tbody>
+  </table>
+
+  <div class="next-box">
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px">後續行動計畫</div>
+    <div class="step-row"><div class="step-num">1</div><div style="font-size:13px;line-height:1.6">各 div-head 周五提供 Claude 授權需求一覽 <span style="color:var(--text-3);font-size:12px">（收集具體 use case）</span></div></div>
+    <div class="step-row"><div class="step-num">2</div><div style="font-size:13px;line-height:1.6">IT 持續蒐集 use case，尚無具體 license 選用建議</div></div>
+    <div class="step-row"><div class="step-num">3</div><div style="font-size:13px;line-height:1.6">個人帳號 + 假資料先行實驗 <span style="color:var(--text-3);font-size:12px">（兩個工具皆可測試）</span></div></div>
+    <div class="step-row"><div class="step-num">4</div><div style="font-size:13px;line-height:1.6">以具體案例比較產出結果，作為 license 選用依據</div></div>
+    <div class="step-row"><div class="step-num">5</div><div style="font-size:13px;line-height:1.6">兩產品皆在快速更新中，功能差距持續變動 <span style="color:var(--text-3);font-size:12px">（定期重新評估）</span></div></div>
+  </div>
+</div>
+
+
+<!-- PAGE 12: Token & Efficiency Tips -->
+<div class="page" id="pg12">
+  <div class="page-eyebrow">概念說明與比較 · 12</div>
+  <div class="page-title">工具選擇指南</div>
+  <div class="page-sub">根據你想做的事，選對工具、裝對東西，一次搞定。</div>
+
+  <!-- 場景 × 工具 速查表 -->
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">🗂 功能情境 × 必備工具</div>
+  <table style="margin-bottom:10px">
+    <thead><tr>
+      <th style="width:28%">功能情境</th>
+      <th style="width:30%">必備工具</th>
+      <th>為什麼？</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Claude Cowork（本機協作）</strong></td>
+        <td><span class="badge b-amber">Windows VM Platform</span></td>
+        <td>讓桌面 App 能執行本機腳本、讀取你的 Excel 或資料庫，需要 Windows Pro/Enterprise + Hyper-V。Mac 用戶需 Apple Silicon（M1+）。</td>
+      </tr>
+      <tr>
+        <td><strong>Claude Code（寫程式）</strong></td>
+        <td><span class="badge b-teal">Git</span> + <span class="badge b-teal">Node.js</span></td>
+        <td>讓 AI 追蹤程式碼版本，防止它寫壞你的專案。Node.js 用於執行 Claude Code CLI 本體。</td>
+      </tr>
+      <tr>
+        <td><strong>網頁自動化（如訂票、填表）</strong></td>
+        <td><span class="badge b-blue">Claude Chrome Extension</span></td>
+        <td>讓 Claude 獲得操控瀏覽器網頁（如高鐵官網）的權限，直接點擊、填表、送出。</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 三個情境的快速操作指引 -->
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">⚡ 我想要…該怎麼做？</div>
+  <div class="grid3" style="margin-bottom:16px">
+    <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:6px">🌐 只要在 Chrome 裡幫我訂票、填表、查資料</div>
+      <div style="font-size:12px;color:#1e3a8a;line-height:1.8">
+        👉 下載 <strong>Claude Chrome Extension</strong><br>
+        → 安裝後在瀏覽器中啟用<br>
+        → 不需要 VM，不需要 Git<br>
+        → 最簡單的起點
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px">🗂 要在桌面 App 跑自動化、處理本機 Excel 或資料夾</div>
+      <div style="font-size:12px;color:#78350f;line-height:1.8">
+        👉 開啟 <strong>Windows VM Platform</strong><br>
+        → 控制台 → 程式和功能 → Windows 功能<br>
+        → 勾選 Virtual Machine Platform<br>
+        → 需 Windows Pro/Enterprise 或 Mac M1+
+      </div>
+    </div>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 16px">
+      <div style="font-size:12px;font-weight:700;color:#065f46;margin-bottom:6px">💻 要在終端機幫我寫專案程式碼</div>
+      <div style="font-size:12px;color:#047857;line-height:1.8">
+        👉 安裝 <strong>Git</strong> 與 <strong>Node.js</strong><br>
+        → git.scm.com 下載 Git<br>
+        → nodejs.org 下載 Node.js 18+<br>
+        → 再執行 npm install -g @anthropic-ai/claude-code
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">🔤 Token 與效能經濟效益</div>
+  <div style="font-size:13px;color:var(--text-2);margin-bottom:14px;line-height:1.6">了解 Token 的本質，用對方法讓 Claude 更聰明、更省、更快。</div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">🔤 Token 是什麼？</div>
+  <div class="card" style="margin-bottom:10px">
+    <p style="margin-bottom:10px">Token 是 AI 模型處理文字的最小單位，<strong>不等於字數</strong>。中文約每 <strong>1 個字 = 1–2 tokens</strong>；英文約每 <strong>4 個字母 = 1 token</strong>。Claude 處理你輸入的訊息（input tokens）再產出回答（output tokens），兩者合計就是這次對話消耗的 Token 量。</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">📥</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Input Token</div>
+        <div style="font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.5">你傳給 Claude 的一切：<br>問題 + 上傳文件 + 對話歷史 + System Prompt</div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">📤</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Output Token</div>
+        <div style="font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.5">Claude 回覆的內容。<br>通常比 input 少，但長篇回答也會很大</div>
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:10px 12px;text-align:center;border:1px solid var(--border)">
+        <div style="font-size:20px;margin-bottom:4px">🧠</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text)">Context Window</div>
+        <div style="font-size:11.5px;color:var(--text-3);margin-top:3px;line-height:1.5">Claude 同時能記住的上限。<br>超過就「忘記」最早的內容</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token 影響什麼 -->
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">⚡ Token 影響什麼？</div>
+  <table style="margin-bottom:16px">
+    <thead><tr><th>面向</th><th>說明</th><th>實際感受</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>訊息用量上限</strong></td>
+        <td>claude.ai 按 <em>每條訊息消耗的 Token 量</em> 計算用量，不是純看「幾條訊息」</td>
+        <td>傳一個 100 頁 PDF 再問問題，比問一句話消耗多很多</td>
+      </tr>
+      <tr>
+        <td><strong>回答品質</strong></td>
+        <td>對話越長，Claude 要同時處理的歷史 Token 越多，有時推理品質會下降</td>
+        <td>長對話後期 Claude 可能「繞圈圈」或忘記早期細節</td>
+      </tr>
+      <tr>
+        <td><strong>回應速度</strong></td>
+        <td>Input Token 越多，處理時間越長</td>
+        <td>貼大量程式碼或長文件，第一個字回來會比較慢</td>
+      </tr>
+      <tr>
+        <td><strong>API 費用</strong></td>
+        <td>直接按 input + output token 計費</td>
+        <td>開發者自建應用時要特別注意 System Prompt 大小</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 效能+經濟效益 核心技巧 -->
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">💡 效能 + 經濟效益：核心技巧</div>
+
+  <div class="card card-accent-blue" style="margin-bottom:10px">
+    <div class="card-head">✂️ 技巧一：同個 Project，開新 Session（最重要）<span class="badge b-blue" style="margin-left:auto">推薦做法</span></div>
+    <p style="margin-bottom:10px">對話越長，每一輪都要把<strong>整段歷史</strong>重新塞進 Context Window。這會讓 Token 消耗快速累積，也可能讓 Claude 被雜訊干擾、品質下降。</p>
+    <div style="background:var(--bg);border-radius:8px;border:1px solid var(--border);overflow:hidden;margin-top:4px">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div style="padding:12px 14px;border-right:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--red-text);margin-bottom:6px">❌ 低效做法</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.8">
+            同一個 Session 裡問了 50 輪對話<br>
+            → 第 50 輪時 Claude 要處理前 49 輪的全部歷史<br>
+            → Token 暴增、速度慢、回答品質可能下降
+          </div>
+        </div>
+        <div style="padding:12px 14px">
+          <div style="font-size:11px;font-weight:600;color:var(--teal-text);margin-bottom:6px">✅ 推薦做法</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.8">
+            <strong>同個 Project</strong> 下開多個 Session<br>
+            → Project 的背景文件與指令持續生效<br>
+            → 每個 Session 從乾淨狀態出發，更聚焦
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:10px;background:#eff6ff;border-radius:6px;padding:8px 12px;font-size:12px;color:#1e40af;line-height:1.6">
+      <strong>具體做法：</strong>把長期背景（角色定義、公司資訊、寫作風格）放進 Project 的自訂指令或上傳文件。每次新任務就在同個 Project 開新 Chat，不用重新貼背景，也不帶著上次的雜訊。
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:10px">
+    <div class="card card-accent-teal">
+      <div class="card-head">🎯 技巧二：問題說清楚，一次到位</div>
+      <p>模糊的問題 → Claude 猜測 → 你修正 → 再問一輪，來回幾次累計的 Token 遠比一開始說清楚多。描述任務時加上：背景、目的、格式要求、字數，可以大幅減少來回次數。</p>
+    </div>
+    <div class="card card-accent-amber">
+      <div class="card-head">📄 技巧三：只上傳相關部分</div>
+      <p>貼整份 100 頁報告只為了問第 3 頁的數字，等於讓 Claude 讀了 97 頁的雜訊。盡量只貼<strong>相關段落</strong>，或先讓 Claude 知道要看哪裡，再選擇性貼上。</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card card-accent-purple">
+      <div class="card-head">🔄 技巧四：長對話定期「重置總結」</div>
+      <p>如果某個 Session 不得不聊很長，可以請 Claude 在中途「整理一份結論摘要」，然後把摘要貼到新 Session 繼續，既省 Token 又讓 Claude 重新聚焦。</p>
+    </div>
+    <div class="card">
+      <div class="card-head">📝 技巧五：善用 Project 自訂指令</div>
+      <p>把每次都要重複說的背景設定（「你是我們公司的法律顧問，請用繁中回答，格式為條列式…」）寫進 Project 的自訂指令，後續每個 Session 自動套用，不用每次都貼。</p>
+    </div>
+  </div>
+
+  <!-- 速查表 -->
+  <div style="font-size:14px;font-weight:600;margin-bottom:10px">📋 Token 效能速查</div>
+  <table style="margin-bottom:14px">
+    <thead><tr><th>情境</th><th>問題根源</th><th>建議做法</th></tr></thead>
+    <tbody>
+      <tr><td>Claude 越問越「跑題」</td><td>對話歷史太長，早期指令被稀釋</td><td>在同 Project 開新 Session</td></tr>
+      <tr><td>訊息額度用得很快</td><td>每輪都帶著龐大的歷史 Token</td><td>縮短單次 Session 長度，只貼相關內容</td></tr>
+      <tr><td>每次都要重新說背景</td><td>沒有使用 Project 功能</td><td>建立 Project，設定自訂指令 + 上傳背景文件</td></tr>
+      <tr><td>回答速度很慢</td><td>Input Token 過多（大文件 + 長歷史）</td><td>只貼相關段落，必要時開新 Session</td></tr>
+      <tr><td>Claude 忘記前面說的事</td><td>超過 Context Window 上限</td><td>整理摘要後開新 Session 繼續</td></tr>
+    </tbody>
+  </table>
+
+  <div class="success-box">
+    <strong>最佳實踐總結：</strong><br>
+    Project 是你的「長期記憶庫」（背景、指令、文件）<br>
+    Session 是每次「工作任務的執行單位」（聚焦、乾淨、不帶雜訊）<br>
+    → 用 <strong>一個 Project + 多個短 Sessions</strong>，是最省 Token、品質最穩的使用方式。
+  </div>
+</div>
+
+</div>
+</div>
+
+<script>
+function go(i){
+  document.querySelectorAll('.nav-item').forEach((n,j)=>n.classList.toggle('active',i===j));
+  document.querySelectorAll('.page').forEach((p,j)=>p.classList.toggle('active',i===j));
+}
+</script>
+</body>
+</html>
+<script>
+function go(i){
+  document.querySelectorAll('.nav-item').forEach((n,j)=>n.classList.toggle('active',i===j));
+  document.querySelectorAll('.page').forEach((p,j)=>p.classList.toggle('active',i===j));
+}
+</script>
+</body>
+</html>
